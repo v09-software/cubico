@@ -26,7 +26,6 @@
  * Implements filtering (via the use of slice) and aggregation functions
  * such as sum, avg, std dev, min, max, first, last, uppercase, etc...
  *
- * TODO how to handle nulls?
  * TODO unit testing
  * TODO add references to aggregated records so we can drill down
  *
@@ -113,19 +112,19 @@ Cubico.TEXT = 2;
 Cubico.NULL = 9;
 
 /**
- * Returns a pseudo-hash identifying the group of the record
+ * Returns a key identifying the group of the record
  * according to the user-selected dimensions (indexes)
  *
  * @param {Array} record
  * @param {Array} indexes
  * @return {String}
  */
-Cubico.getHashCode = function (record, indexes) {
-    var hash = "";
-    for (var i = indexes.length - 1; i > -1; i--) {
-        hash += record[indexes[i]].toString() + "_7";
+Cubico.getUniqueKey = function (record, indexes) {
+    var key = "";
+    for (var i = 0; i < indexes.length; i++) {
+        key += record[indexes[i]].toString() + "_7";
     }
-    return hash;
+    return key;
 };
 
 /**
@@ -534,6 +533,26 @@ Cubico.prototype.averageOf = function (dimensionName) {
     };
 };
 
+Cubico.prototype.stdDevOf = function (dimensionName) {
+    var dimIdx = this.getDimensionIndex(dimensionName);
+    return function (record, staticVars) {
+        if (!staticVars.runningTotal) {
+            staticVars.count = 0;
+            staticVars.runningTotal = 0;
+            staticVars.runningTotalSquared = 0;
+        }
+        if (record[dimIdx] !== null) {
+            staticVars.count++;
+            staticVars.runningTotal += parseFloat(record[dimIdx]);
+            staticVars.runningTotalSquared += parseFloat(record[dimIdx]) * parseFloat(record[dimIdx]);
+        }
+        // approximation sqrt(s0 * s2 - s1^2) / s0
+        var approximation = staticVars.count * staticVars.runningTotalSquared;
+        approximation -= staticVars.runningTotal * staticVars.runningTotal;
+        return Math.sqrt(approximation) / staticVars.count;
+    };
+};
+
 Cubico.prototype.countOf = function (dimension) {
     if (dimension == "*") {
         return function (record, staticVars) {
@@ -582,6 +601,8 @@ Cubico.prototype.getAggregation = function (aggregationName, dimensionName) {
             return this.countUniqueOf(dimensionName);
         case "average":
             return this.averageOf(dimensionName);
+        case "stdDev":
+            return this.stdDevOf(dimensionName);
         default:
             throw new Error("Unknown aggregation type: " + aggregationName);
     }
@@ -633,7 +654,7 @@ Cubico.prototype.aggregate = function (dimensions, measures) {
         var originalRecord = this.storage[i];
 
         // compute unique value for the given set of dimensions
-        var uniqueKey = Cubico.getHashCode(originalRecord, dimensions);
+        var uniqueKey = Cubico.getUniqueKey(originalRecord, dimensions);
 
         // if group is not created yet, initialize it
         if (storageMap.hasOwnProperty(uniqueKey) === false) {
@@ -647,8 +668,8 @@ Cubico.prototype.aggregate = function (dimensions, measures) {
 
             // store references to the aggregated record and its children
             storageMap[uniqueKey] = {
-                record:newRecord, // reference to aggregated record
-                children:[] // reference to children
+                record: newRecord, // reference to aggregated record
+                children: [] // reference to children
             };
 
             // create room for static vars that are used by computation
@@ -773,7 +794,6 @@ Cubico.prototype.getFilter = function (comparator, dimension, value) {
 
 Cubico.equalTo = function (dimensionIndex, value) {
     return function (record) {
-        console.log(record);
         return record[dimensionIndex] === value;
     };
 };
