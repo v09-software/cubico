@@ -1,0 +1,156 @@
+<html xmlns="http://www.w3.org/1999/html">
+<head>
+    <title>Cubico Samples – SFPD Incidents</title>
+    <link rel="stylesheet" href="./bootstrap.min.css">
+    <script type="text/javascript" src="./jquery.min.js"></script>
+    <script type="text/javascript" src="./../cubico.js"></script>
+    <script type="text/javascript" src="SFPDIncidents.js"></script>
+    <script type="text/javascript">
+
+        var cubico = new Cubico();
+
+        (function (cubico) {
+
+            var dimensions = SFPDIncidents.meta.view.columns;
+            for (var i = 0; i < dimensions.length; i++) {
+                var dataType = dimensions[i].dataTypeName == "number" || dimensions[i].dataTypeName == "date"
+                        ? Cubico.NUMERIC
+                        : Cubico.TEXT;
+                cubico.addDimension(dimensions[i].name, dataType);
+            }
+
+            var data = SFPDIncidents.data;
+            for (i = 0; i < data.length; i++) {
+                cubico.addRecordFromArray(data[i], false);
+            }
+
+        })(cubico);
+
+    </script>
+</head>
+<body>
+
+<div class="container">
+    <h1>SFPD Incidents</h1>
+
+    <p class="lead">Incidents derived from SFPD Crime Incident Reporting system</p>
+
+    <p> Source: <a href="https://data.sfgov.org/Public-Safety/SFPD-Incidents-Previous-Three-Months/tmnf-yvry">https://data.sfgov.org/Public-Safety/SFPD-Incidents-Previous-Three-Months/tmnf-yvry</a>
+    </p>
+
+    <p>Date downloaded: May 4th, 2013</p>
+
+    <p>Number of records: 26,668</p>
+
+    <p>This data set contains the following columns:</p>
+    <table class="table table-bordered">
+
+        <tr>
+            <th>Name</th>
+            <th>Declared data type</th>
+            <th>Interpreted data type</th>
+        </tr>
+        <tr>
+            <td>sid</td>
+            <td>meta_data</td>
+            <td>Cubico.TEXT</td>
+        </tr>
+        <tr>
+            <td>id</td>
+            <td>meta_data</td>
+            <td>Cubico.TEXT</td>
+        </tr>
+        <tr>
+            <td>position</td>
+            <td>meta_data</td>
+            <td>Cubico.TEXT</td>
+        </tr>
+        <tr>
+            <td>created_at</td>
+            <td>meta_data</td>
+            <td>Cubico.TEXT</td>
+        </tr>
+        <tr>
+            <td>created_meta</td>
+            <td>meta_data</td>
+            <td>Cubico.TEXT</td>
+        </tr>
+        <tr>
+            <td>updated_at</td>
+            <td>meta_data</td>
+            <td>Cubico.TEXT</td>
+        </tr>
+        <tr>
+            <td>updated_meta</td>
+            <td>meta_data</td>
+            <td>Cubico.TEXT</td>
+        </tr>
+        <tr>
+            <td>meta</td>
+            <td>meta_data</td>
+            <td>Cubico.TEXT</td>
+        </tr>
+        <tr>
+            <td>IncidntNum</td>
+            <td>number</td>
+            <td>Cubico.NUMERIC</td>
+        </tr>
+        <tr>
+            <td>Category</td>
+            <td>text</td>
+            <td>Cubico.TEXT</td>
+        </tr>
+        <tr>
+            <td>Descript</td>
+            <td>text</td>
+            <td>Cubico.TEXT</td>
+        </tr>
+        <tr>
+            <td>DayOfWeek</td>
+            <td>text</td>
+            <td>Cubico.TEXT</td>
+        </tr>
+        <tr>
+            <td>Date</td>
+            <td>date</td>
+            <td>Cubico.NUMERIC</td>
+        </tr>
+        <tr>
+            <td>Time</td>
+            <td>text</td>
+            <td>Cubico.TEXT</td>
+        </tr>
+        <tr>
+            <td>PdDistrict</td>
+            <td>text</td>
+            <td>Cubico.TEXT</td>
+        </tr>
+        <tr>
+            <td>Resolution</td>
+            <td>text</td>
+            <td>Cubico.TEXT</td>
+        </tr>
+        <tr>
+            <td>Address</td>
+            <td>text</td>
+            <td>Cubico.TEXT</td>
+        </tr>
+        <tr>
+            <td>X</td>
+            <td>number</td>
+            <td>Cubico.NUMERIC</td>
+        </tr>
+        <tr>
+            <td>Y</td>
+            <td>number</td>
+            <td>Cubico.NUMERIC</td>
+        </tr>
+        <tr>
+            <td>Location</td>
+            <td>location</td>
+            <td>Cubico.TEXT</td>
+        </tr>
+    </table>
+</div>
+</body>
+</html>
